@@ -1,0 +1,31 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+Vagrant.configure("2") do |config|
+    # Usar Ubuntu 22.04 como sistema base
+    config.vm.box = "ubuntu/jammy64"
+    # Asignar un nombre de host a la máquina virtual
+    config.vm.hostname = "webserver"
+
+    #Configurar la red para poder acceder al servidor web
+    config.vm.network "private_network", type: "dhcp"
+  
+    # Asignar 128 MB de RAM y 1 CPU
+    config.vm.provider "virtualbox" do |vb|
+      vb.memory = "128"
+      vb.cpus = 1
+    end
+  
+    # Instalar Apache en la VM
+    config.vm.provision "shell", inline: <<-SHELL
+      sudo apt-get update
+      sudo apt-get install -y apache2
+      sudo systemctl enable apache2
+    SHELL
+  
+    # Configurar carpeta compartida
+    config.vm.synced_folder "src", "/var/www/html", owner: "www-data"
+    
+    # Asignar una IP privada para acceder a Apache desde el host
+    config.vm.network "private_network", ip: "192.168.56.10"
+  end
+  
